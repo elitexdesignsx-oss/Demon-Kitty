@@ -93,3 +93,12 @@ node scripts/validate-site.mjs
 It checks local page and asset references, gallery data, HTML language and heading basics,
 sitemap targets, and animation invariants. Missing legacy hero-video files are reported as
 runtime-fallback warnings; the existing animated video engine remains enabled.
+
+After starting a local static server, smoke-test the HTTP publish output with:
+
+```bash
+node scripts/check-http.mjs http://127.0.0.1:4175
+```
+
+Pass the final Netlify URL to the same command after deployment to verify the live
+publish output.

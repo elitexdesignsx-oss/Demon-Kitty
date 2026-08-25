@@ -254,11 +254,20 @@
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let isAutoScrolling = !reduceMotion;
     let autoScrollInterval;
+    let metrics = { cardWidth: 0, maxScroll: 0 };
+    let updateRaf = null;
+
+    const measureTrack = () => {
+      metrics = {
+        cardWidth: track.scrollWidth / dots.length,
+        maxScroll: Math.max(0, track.scrollWidth - track.clientWidth),
+      };
+    };
 
     const updateDots = () => {
+      if (!metrics.cardWidth) measureTrack();
       const scrollPos = track.scrollLeft;
-      const cardWidth = track.scrollWidth / dots.length;
-      let activeIndex = Math.round(scrollPos / cardWidth);
+      let activeIndex = Math.round(scrollPos / metrics.cardWidth);
       
       if (activeIndex >= dots.length) activeIndex = dots.length - 1;
 
@@ -274,13 +283,10 @@
       autoScrollInterval = setInterval(() => {
         if (!isAutoScrolling || document.hidden) return;
         
-        const cardWidth = track.scrollWidth / dots.length;
-        const maxScroll = track.scrollWidth - track.clientWidth;
-        
-        if (track.scrollLeft >= maxScroll - 10) {
+        if (track.scrollLeft >= metrics.maxScroll - 10) {
           track.scrollTo({ left: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
         } else {
-          track.scrollBy({ left: cardWidth, behavior: reduceMotion ? 'auto' : 'smooth' });
+          track.scrollBy({ left: metrics.cardWidth, behavior: reduceMotion ? 'auto' : 'smooth' });
         }
       }, 5000);
     };
@@ -294,19 +300,37 @@
       }
     });
 
-    on(track, 'scroll', updateDots, { passive: true });
+    on(track, 'scroll', () => {
+      if (updateRaf) return;
+      updateRaf = requestAnimationFrame(() => {
+        updateRaf = null;
+        updateDots();
+      });
+    }, { passive: true });
     on(track, 'mouseenter', () => { isAutoScrolling = false; });
     on(track, 'mouseleave', () => { isAutoScrolling = true; });
 
     dots.forEach((dot, idx) => {
       on(dot, 'click', () => {
         isAutoScrolling = false;
-        const cardWidth = track.scrollWidth / dots.length;
-        track.scrollTo({ left: cardWidth * idx, behavior: reduceMotion ? 'auto' : 'smooth' });
+        track.scrollTo({ left: metrics.cardWidth * idx, behavior: reduceMotion ? 'auto' : 'smooth' });
         setTimeout(() => { isAutoScrolling = true; }, 10000);
       });
     });
 
+    measureTrack();
+    if ('ResizeObserver' in window) {
+      const resizeObserver = new ResizeObserver(() => {
+        measureTrack();
+        updateDots();
+      });
+      resizeObserver.observe(track);
+    } else {
+      window.addEventListener('resize', () => {
+        measureTrack();
+        updateDots();
+      }, { passive: true });
+    }
     startAutoScroll();
     updateDots();
   };
@@ -379,12 +403,19 @@
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
+          // Promote only during the actual reveal window, then release the layer
+          // from the transition event instead of keeping one timer per element.
+          const releaseLayer = (event) => {
+            if (event.propertyName !== 'opacity' && event.propertyName !== 'transform' && event.propertyName !== 'filter') return;
+            entry.target.style.willChange = 'auto';
+            entry.target.removeEventListener('transitionend', releaseLayer);
+            entry.target.removeEventListener('transitioncancel', releaseLayer);
+          };
+          entry.target.style.willChange = 'opacity, transform, filter';
+          entry.target.addEventListener('transitionend', releaseLayer);
+          entry.target.addEventListener('transitioncancel', releaseLayer);
           entry.target.classList.add('is-visible');
           observer.unobserve(entry.target);
-          // Release GPU will-change after transition completes
-          setTimeout(() => {
-            entry.target.style.willChange = 'auto';
-          }, 900);
         }
       });
     }, {
@@ -478,25 +509,22 @@
   // --------------------------------------------------------------------------
   // 10. UNIVERSAL HERO BACKGROUND VIDEO RANDOMIZER & INFINITE LOOP ENGINE
   // --------------------------------------------------------------------------
-  const initHeroVideoEngine = () => {
+  const initHeroVideoEngine = async () => {
     const containers = getEls('.hero-video-container');
     if (containers.length === 0) return;
 
-    // Verified complete pool of 12 distinct, non-duplicate videos
-    const videoPool = [
-      'assets/video/dk_video_1.mp4',
-      'assets/video/dk_video_2.mp4',
-      'assets/video/dk_video_3.mp4',
-      'assets/video/dk_video_4.mp4',
-      'assets/video/dk_video_5.mp4',
-      'assets/video/dk_video_6.mp4',
-      'assets/video/dk_video_8.mp4',
-      'assets/video/dk_video_9.mp4',
-      'assets/video/dk_video_10.mp4',
-      'assets/video/dk_video_11.mp4',
-      'assets/video/dk_video_12.mp4',
-      'assets/video/dk_video_13.mp4'
-    ];
+    let videoPool = [];
+    try {
+      const manifestUrl = new URL('assets/video/manifest.json', document.baseURI);
+      const response = await fetch(manifestUrl, { credentials: 'same-origin', cache: 'force-cache' });
+      const manifest = await response.json();
+      videoPool = Array.isArray(manifest?.videos)
+        ? manifest.videos.filter(src => typeof src === 'string' && /\.mp4$/i.test(src))
+        : [];
+    } catch (error) {
+      return;
+    }
+    if (videoPool.length < 2) return;
 
     function shuffle(array, lastPlayed) {
       const arr = [...array];
@@ -538,21 +566,90 @@
       let currentIndex = 0;
       let isTransitioning = false;
       let fallbackTimer = null;
+      let transitionTimer = null;
+      let fallbackRemaining = null;
+      let transitionRemaining = null;
+      let fallbackDueAt = 0;
+      let transitionDueAt = 0;
+      let activeReady = false;
+
+      const clearFallbackTimer = () => {
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      };
+
+      const clearTransitionTimer = () => {
+        if (transitionTimer) clearTimeout(transitionTimer);
+        transitionTimer = null;
+      };
+
+      const scheduleFallback = (delay = 10000) => {
+        clearFallbackTimer();
+        fallbackRemaining = delay;
+        if (document.hidden) return;
+        fallbackDueAt = Date.now() + delay;
+        fallbackTimer = setTimeout(() => {
+          fallbackTimer = null;
+          fallbackRemaining = null;
+          transitionToNextClip();
+        }, delay);
+      };
+
+      const scheduleTransitionCleanup = (delay, callback) => {
+        clearTransitionTimer();
+        transitionRemaining = delay;
+        if (document.hidden) return;
+        transitionDueAt = Date.now() + delay;
+        transitionTimer = setTimeout(() => {
+          transitionTimer = null;
+          transitionRemaining = null;
+          callback();
+        }, delay);
+      };
+
+      const pauseTimers = () => {
+        if (fallbackTimer) {
+          fallbackRemaining = Math.max(0, fallbackDueAt - Date.now());
+          clearFallbackTimer();
+        }
+        if (transitionTimer) {
+          transitionRemaining = Math.max(0, transitionDueAt - Date.now());
+          clearTransitionTimer();
+        }
+      };
+
+      const resumeTimers = () => {
+        if (fallbackRemaining !== null) scheduleFallback(fallbackRemaining);
+        if (transitionRemaining !== null) {
+          const remaining = transitionRemaining;
+          scheduleTransitionCleanup(remaining, finishTransition);
+        }
+      };
+
+      const preloadIdleVideo = () => {
+        if (document.hidden || !activeReady || idleVideo.src) return;
+        const nextIndex = (currentIndex + 1) % playlist.length;
+        idleVideo.src = playlist[nextIndex];
+        idleVideo.load();
+      };
 
       // Start initial video immediately
       activeVideo.src = playlist[currentIndex];
       activeVideo.load();
       activeVideo.play().catch(() => {});
 
-      // Preload next clip in idle buffer
-      const nextIndex = (currentIndex + 1) % playlist.length;
-      idleVideo.src = playlist[nextIndex];
-      idleVideo.load();
+      const markActiveReady = () => {
+        activeReady = true;
+        preloadIdleVideo();
+      };
+      activeVideo.addEventListener('canplay', markActiveReady, { once: true });
+      if (activeVideo.readyState >= 3) markActiveReady();
 
       function transitionToNextClip() {
         if (isTransitioning) return;
         isTransitioning = true;
-        if (fallbackTimer) clearTimeout(fallbackTimer);
+        clearFallbackTimer();
+        fallbackRemaining = null;
 
         currentIndex++;
         if (currentIndex >= playlist.length) {
@@ -574,25 +671,28 @@
             activeVideo.classList.remove('is-active');
             activeVideo.classList.add('is-idle');
 
-            setTimeout(() => {
-              activeVideo.pause();
-              const temp = activeVideo;
-              activeVideo = idleVideo;
-              idleVideo = temp;
-              isTransitioning = false;
-
-              // Preload upcoming clip into idle buffer
-              const upcomingIndex = (currentIndex + 1) % playlist.length;
-              idleVideo.src = playlist[upcomingIndex];
-              idleVideo.load();
-
-              attachVideoListeners(activeVideo);
-            }, 850);
+            scheduleTransitionCleanup(850, finishTransition);
           }).catch(() => {
             isTransitioning = false;
-            setTimeout(transitionToNextClip, 1000);
+            scheduleFallback(1000);
           });
         };
+
+        function finishTransition() {
+          activeVideo.pause();
+          const temp = activeVideo;
+          activeVideo = idleVideo;
+          idleVideo = temp;
+          isTransitioning = false;
+
+          // Only populate the idle buffer after the new active clip is ready.
+          activeReady = activeVideo.readyState >= 3;
+          idleVideo.replaceChildren();
+          idleVideo.removeAttribute('src');
+          idleVideo.load();
+          preloadIdleVideo();
+          attachVideoListeners(activeVideo);
+        }
 
         if (idleVideo.readyState >= 3) {
           performCrossfade();
@@ -604,36 +704,38 @@
       function attachVideoListeners(video) {
         video.onended = transitionToNextClip;
         video.onerror = transitionToNextClip;
+        let lastTimeCheck = 0;
 
         video.ontimeupdate = () => {
-          if (video.duration && video.currentTime > 0) {
-            if (video.currentTime >= video.duration - 0.75) {
-              video.ontimeupdate = null;
-              transitionToNextClip();
-            }
+          const now = performance.now();
+          if (now - lastTimeCheck < 250) return;
+          lastTimeCheck = now;
+          if (video.duration && video.duration - video.currentTime <= 0.45) {
+            video.ontimeupdate = null;
+            transitionToNextClip();
           }
         };
 
-        fallbackTimer = setTimeout(() => {
-          transitionToNextClip();
-        }, 10000);
+        scheduleFallback(10000);
       }
 
       attachVideoListeners(activeVideo);
-    });
 
-    // Pause on hidden tab to save CPU/battery
-    document.addEventListener('visibilitychange', () => {
-      containers.forEach(container => {
-        const activeVid = container.querySelector('.hero-video-bg.is-active');
-        if (activeVid) {
-          if (document.hidden) {
-            if (!activeVid.paused) activeVid.pause();
-          } else {
-            activeVid.play().catch(() => {});
-          }
+      const handleVisibility = () => {
+        const allHeroVideos = [activeVideo, idleVideo];
+        if (document.hidden) {
+          pauseTimers();
+          allHeroVideos.forEach(video => video.pause());
+          return;
         }
-      });
+
+        activeVideo.play().catch(() => {});
+        if (isTransitioning) idleVideo.play().catch(() => {});
+        resumeTimers();
+        preloadIdleVideo();
+      };
+
+      document.addEventListener('visibilitychange', handleVisibility);
     });
   };
 
@@ -781,19 +883,10 @@
 
 })();
 
-/* ==========================================================================
-   CONTENT PROTECTION (Anti-Right Click)
+/* ========================================================================== 
+   CONTENT PROTECTION
    ========================================================================== */
-document.addEventListener('contextmenu', function(e) {
-  if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
-    e.preventDefault();
-  }
-});
-
-/* ==========================================================================
-   ROBUST CONTENT PROTECTION
-   ========================================================================== */
-// Kill right click globally
+// Preserve the existing global protection behavior in one listener.
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
 }, { passive: false });

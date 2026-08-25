@@ -51,6 +51,32 @@ if (existsSync(galleryDataPath)) {
 
 const css = readFileSync(join(root, 'assets', 'css', 'styles.css'), 'utf8');
 const js = readFileSync(join(root, 'assets', 'js', 'main.js'), 'utf8');
+const videoManifestPath = join(root, 'assets', 'video', 'manifest.json');
+if (!existsSync(videoManifestPath)) {
+  failures.push('assets/video/manifest.json -> missing playable-media manifest');
+} else {
+  try {
+    const videoManifest = JSON.parse(readFileSync(videoManifestPath, 'utf8'));
+    if (!Array.isArray(videoManifest?.videos) || videoManifest.videos.length < 2) {
+      failures.push('assets/video/manifest.json -> expected at least two videos');
+    } else {
+      const seenVideos = new Set();
+      for (const video of videoManifest.videos) {
+        if (typeof video !== 'string' || !/^assets\/video\/[^/]+\.mp4$/i.test(video)) {
+          failures.push(`assets/video/manifest.json -> invalid playable path ${video}`);
+          continue;
+        }
+        if (seenVideos.has(video)) failures.push(`assets/video/manifest.json -> duplicate ${video}`);
+        seenVideos.add(video);
+        if (!existsSync(join(root, video.replaceAll('/', '\\')))) {
+          failures.push(`assets/video/manifest.json -> missing ${video}`);
+        }
+      }
+    }
+  } catch (error) {
+    failures.push(`assets/video/manifest.json -> invalid JSON (${error.message})`);
+  }
+}
 const jsAssetPattern = /["'](assets\/(?:img|video)\/[^"']+)["']/gi;
 for (const match of js.matchAll(jsAssetPattern)) {
   const asset = match[1];

@@ -823,6 +823,53 @@ html.age-verified #age-gate {
 .mobile-bar .btn { flex: 1; padding: 0 var(--space-2); font-size: 0.85rem; min-height: 44px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
 .mobile-bar .btn-primary { background: linear-gradient(135deg, var(--bordeaux-light), var(--bordeaux)); color: #FFFFFF; }
 .mobile-bar .btn-ghost { background: #FFFFFF; border: 1px solid var(--surface-border); color: var(--text-primary); }
+
+/* Phone motion: keep touch interactions short and compositor-friendly. */
+@media (max-width: 767px) {
+  /* Blur is costly on smaller GPUs; opacity + transform keep the same reveal
+     language while reducing paint work during scroll. */
+  [data-animate] {
+    transform: translate3d(0, 16px, 0) scale(0.99);
+    filter: none;
+    transition-duration: 0.48s;
+  }
+
+  /* Reuse the existing drawer state instead of adding a second JS animation. */
+  .nav-drawer nav a {
+    opacity: 0;
+    transform: translate3d(14px, 0, 0);
+    transition: opacity 0.24s var(--ease-out-expo), transform 0.32s var(--ease-out-expo), color var(--dur-fast) var(--ease);
+  }
+  .nav-drawer.is-open nav a {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  .nav-drawer.is-open nav li:nth-child(1) a { transition-delay: 40ms; }
+  .nav-drawer.is-open nav li:nth-child(2) a { transition-delay: 80ms; }
+  .nav-drawer.is-open nav li:nth-child(3) a { transition-delay: 120ms; }
+  .nav-drawer.is-open nav li:nth-child(4) a { transition-delay: 160ms; }
+  .nav-drawer.is-open nav li:nth-child(5) a { transition-delay: 200ms; }
+
+  .mobile-bar .btn {
+    transition: transform 0.18s var(--ease-out-expo), box-shadow 0.18s var(--ease-out-expo), background 0.18s var(--ease-out-expo);
+  }
+  .mobile-bar .btn:active {
+    transform: translateY(1px) scale(0.97);
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    transform: none;
+    transition-duration: 160ms;
+  }
+  .nav-drawer nav a {
+    transform: none;
+    transition-duration: 160ms;
+    transition-delay: 0ms !important;
+  }
+}
+
 @media (min-width: 1024px) {
   .mobile-bar { display: none; }
   body { padding-bottom: 0; }
