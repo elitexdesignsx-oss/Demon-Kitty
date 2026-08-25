@@ -320,6 +320,21 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   box-shadow: -15px 0 50px rgba(0, 0, 0, 0.95), 0 0 35px rgba(255, 46, 147, 0.2);
 }
 
+[data-theme="dark"] .menu-btn {
+  background: #15151F;
+  border-color: rgba(255, 46, 147, 0.42);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 0 14px rgba(255, 46, 147, 0.16);
+}
+
+[data-theme="dark"] .menu-btn span {
+  background: #F8FAFC;
+}
+
+[data-theme="dark"] .nav-drawer__close {
+  background: #15151F;
+  border-color: rgba(255, 46, 147, 0.42);
+}
+
 [data-theme="dark"] .age-gate__modal {
   background: #0E0E16;
   border: 1px solid rgba(255, 46, 147, 0.4);
@@ -854,6 +869,46 @@ html.age-verified #age-gate {
 
 /* Phone motion: keep touch interactions short and compositor-friendly. */
 @media (max-width: 767px) {
+  /* Use a phone sheet rather than a desktop-width side panel. */
+  .nav-drawer__panel {
+    width: 100%;
+    max-width: 480px;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-top: calc(76px + env(safe-area-inset-top, 0px));
+    border-left: 0;
+  }
+  .nav-drawer__close {
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    right: 16px;
+  }
+  .nav-drawer__logo {
+    max-width: 150px;
+    margin: 0 auto 18px;
+  }
+  .logo-wrapper--nav {
+    max-width: 150px;
+    max-height: 200px;
+    margin-bottom: 0;
+  }
+  .nav-drawer nav ul {
+    gap: 0;
+  }
+  .nav-drawer nav a {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 12px 4px;
+    font-size: clamp(1.1rem, 5.4vw, 1.45rem);
+  }
+  .nav-drawer > .nav-drawer__panel > div[style*="margin"] {
+    margin: 18px 0 !important;
+  }
+  .nav-drawer__foot {
+    padding-top: 18px;
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
   /* Blur is costly on smaller GPUs; opacity + transform keep the same reveal
      language while reducing paint work during scroll. */
   [data-animate] {
@@ -1188,17 +1243,40 @@ html.age-verified #age-gate {
 .bar-row .bar-value { width: 40px; text-align: right; font-family: var(--font-mono); color: var(--text-primary); }
 
 /* ==========================================================================
-   TALLY EMBED
+   TALLY BOOKING FORM (DYNAMIC DARK & LIGHT SUITE)
    ========================================================================== */
 .tally-embed {
-  border-radius: var(--radius-lg);
+  max-width: 820px;
+  margin: var(--space-5) auto;
+  border-radius: var(--radius-xl);
+  padding: clamp(16px, 3vw, 32px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
-  min-height: 500px;
 }
+
 .tally-embed iframe {
   width: 100%;
-  min-height: 600px;
+  min-height: 620px;
   border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  display: block;
+  filter: none;
+}
+
+[data-theme="dark"] .tally-embed {
+  background: rgba(18, 18, 26, 0.95);
+  border: 1px solid rgba(255, 46, 147, 0.35);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 46, 147, 0.18);
+}
+
+[data-theme="dark"] .tally-embed iframe {
+  filter: invert(0.92) hue-rotate(180deg) contrast(0.92);
   border-radius: var(--radius-lg);
 }
 
@@ -1705,6 +1783,76 @@ html.age-verified #age-gate {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* Phone composition: keep the narrative, proof points, actions, and image
+   as one deliberate vertical sequence instead of letting desktop spacing
+   dictate the small-screen rhythm. */
+@media (max-width: 767px) {
+  .about-section {
+    padding-top: 44px;
+    padding-bottom: 44px;
+  }
+  .about-grid {
+    gap: 28px;
+  }
+  .about-thought-wrap {
+    margin-bottom: 22px;
+  }
+  .about-thought {
+    font-size: clamp(1.75rem, 8.2vw, 2.15rem);
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .about-pillars {
+    gap: 10px;
+    margin-top: 22px;
+    margin-bottom: 22px;
+  }
+  .about-pillar {
+    min-height: 64px;
+    padding: 12px 14px;
+    gap: 11px;
+  }
+  .pillar-info {
+    min-width: 0;
+    line-height: 1.25;
+  }
+  .pillar-info strong,
+  .pillar-info span {
+    overflow-wrap: anywhere;
+  }
+  .about-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    margin-top: 0;
+  }
+  .about-actions .btn {
+    width: 100%;
+    min-height: 48px;
+    padding-inline: 10px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+  .about-photo-frame {
+    max-width: none;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-lg);
+  }
+  .about-section + .section {
+    padding-top: 0;
+    padding-inline: 20px;
+  }
+  .about-section + .section .card {
+    padding: 24px 18px;
+  }
+  .about-section + .section .card p {
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
 }
 
 /* ==========================================================================
