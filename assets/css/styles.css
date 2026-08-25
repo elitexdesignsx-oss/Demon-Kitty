@@ -818,12 +818,24 @@ html.age-verified #age-gate {
 .theme-switch-btn.theme-switch-btn--mobile { display: none; }
 
 @media (max-width: 1023px) {
-  .site-header__logo { min-width: 0; flex: 1 1 auto; }
+  .site-header {
+    gap: 10px;
+  }
+  .site-header__logo {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+  .header-motto {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .theme-switch-btn.theme-switch-btn--mobile {
     display: inline-flex;
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     justify-content: center;
     align-items: center;
@@ -838,6 +850,9 @@ html.age-verified #age-gate {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+  .site-header > .menu-btn {
+    flex: 0 0 44px;
   }
 }
 
