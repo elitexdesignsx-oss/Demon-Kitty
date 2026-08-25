@@ -81,7 +81,7 @@
         <li><a href="tribute.html" class="is-active">Tribute</a></li>
         <li>
           <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
+            <span class="theme-icon" aria-hidden="true"></span>
             <span class="theme-label">Dark Mode</span>
           </button>
         </li>
@@ -118,7 +118,7 @@
       </nav>
       <div style="margin: var(--space-4) 0; padding-inline: var(--space-2);">
         <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode" style="width: 100%; justify-content: center; padding: 10px 16px;">
-          <span class="theme-icon">🌙</span>
+          <span class="theme-icon" aria-hidden="true"></span>
           <span class="theme-label">Dark Mode</span>
         </button>
       </div>
@@ -141,8 +141,8 @@
        ════════════════════════════════════════════════════════════ -->
   <main class="tribute-main">
 
-    <!-- ELITE HERO SECTION -->
-    <section class="tribute-hero elite-hero">
+    <!-- ─── Hero Section with Video Engine ─── -->
+    <section class="page-head has-video-bg sheen">
       <!-- Full Bleed Video Background -->
       <div class="hero-video-container" aria-hidden="true">
         <video class="hero-video-bg is-active" autoplay muted playsinline loop preload="auto">
@@ -150,18 +150,26 @@
         </video>
         <video class="hero-video-bg is-idle" muted playsinline preload="auto"></video>
       </div>
-      <!-- Rich Vignette Overlay -->
-      <div class="elite-hero-overlay"></div>
-      <div class="ambient-glow-orb ambient-glow-orb--gold"></div>
-      <div class="ambient-glow-orb ambient-glow-orb--bordeaux"></div>
+      <!-- Dark Cinematic Vignette Overlay -->
+      <div class="hero-video-overlay"></div>
       
-      <div class="container elite-hero__content">
-        <div class="elite-accent-line"></div>
-        <p class="elite-eyebrow">The Inner Sanctum</p>
-        <h1 class="elite-title">Kneel.<br>Submit.<br>Pay.</h1>
-        <p class="elite-subtitle">Real subs and foot slaves already know where they belong — kneeling, eyes down, wallet ready.</p>
-        <div class="elite-hero__actions">
-            <a href="#tribute-options" class="btn btn-elite">Prove Your Worth</a>
+      <div class="container hero-content page-hero-command">
+        <div class="page-hero-badge">
+          <span class="badge-dot"></span>
+          <span>Financial Submission &middot; Unconditional Drain</span>
+        </div>
+        <h1 class="page-hero-title">Tribute &amp; Financial Submission</h1>
+        <p class="page-hero-statement">Words are cheap — devotion is proven in currency. Send your tribute upfront to show respect, gain my personal attention, or fund my luxury lifestyle.</p>
+        
+        <div class="page-protocol-bar">
+          <div class="protocol-chip"><span>01</span> Instant Clearance Required</div>
+          <div class="protocol-chip"><span>02</span> Zero Chargeback Tolerance</div>
+          <div class="protocol-chip"><span>03</span> VIP Priority Status</div>
+        </div>
+
+        <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; margin-top: var(--space-5);">
+          <a href="#tribute-options" class="btn btn-primary" style="min-width: 220px;">Select Tribute Tier &darr;</a>
+          <a href="services.html" class="btn btn-ghost" style="min-width: 200px; background: rgba(255,255,255,0.92); color: #0C0C10;">Explore Services &rarr;</a>
         </div>
       </div>
     </section>

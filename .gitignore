@@ -1,0 +1,59 @@
+# ==============================================================================
+# Demon Kitty — Repository Privacy & Production Ignore Rules
+# ==============================================================================
+
+# Agent, AI Assistant, & Skills Environments (Hidden from Public Repo)
+.agent/
+.agents/
+.skills/
+skills/
+.codex/
+.gemini/
+.antigravity/
+.system_generated/
+.user_uploaded/
+.tempmediaStorage/
+brain/
+scratch/
+
+# Agent Documents, Design Notes & Workflow Tracking
+implementation_plan.md
+walkthrough.md
+task_log.md
+notes.md
+*.agent.md
+*.skill.md
+impeccable.json
+.impeccable/
+
+# IDE & Editor Configuration
+.vscode/
+.idea/
+.cursor/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.tmp
+*.bak
+
+# Node & Dependency Caches
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+
+# Logs & Temporary Artifacts
+*.log
+.cache/
+dist/
+build/

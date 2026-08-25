@@ -72,7 +72,7 @@
         <li><a href="tribute.html">Tribute</a></li>
         <li>
           <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
+            <span class="theme-icon" aria-hidden="true"></span>
             <span class="theme-label">Dark Mode</span>
           </button>
         </li>
@@ -107,7 +107,7 @@
       </nav>
       <div style="margin: var(--space-4) 0; padding-inline: var(--space-2);">
         <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode" style="width: 100%; justify-content: center; padding: 10px 16px;">
-          <span class="theme-icon">🌙</span>
+          <span class="theme-icon" aria-hidden="true"></span>
           <span class="theme-label">Dark Mode</span>
         </button>
       </div>
@@ -136,11 +136,24 @@
         </video>
         <video class="hero-video-bg is-idle" muted playsinline preload="auto"></video>
       </div>
-      <div class="hero-video-overlay"></div>
-      <div class="container hero-content">
-        <p class="eyebrow" style="justify-content:center;">Protected Gallery</p>
-        <h1>The Archive</h1>
-        <p class="lede" style="margin-inline:auto; max-width: 65ch;">A visual archive of pure obsession — killer facial expressions, hypnotic gaze, endless nylon legs, pointed stilettos, and sensual soft feet. Watermarked and view-only.</p>
+      <div class="container hero-content page-hero-command">
+        <div class="page-hero-badge">
+          <span class="badge-dot"></span>
+          <span>Exclusive Vault &middot; Original Media</span>
+        </div>
+        <h1 class="page-hero-title">The Archival Vault</h1>
+        <p class="page-hero-statement">Unfiltered, high-resolution visual proof of my absolute control. Killer expressions, hypnotic gaze, endless nylon legs, soft soles, and domination — examine and worship.</p>
+        
+        <div class="page-protocol-bar">
+          <div class="protocol-chip"><span>01</span> 120+ Archival Photos &amp; Clips</div>
+          <div class="protocol-chip"><span>02</span> 4K Ultra HD Previews</div>
+          <div class="protocol-chip"><span>03</span> Traceable Digital Watermarks</div>
+        </div>
+
+        <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; margin-top: var(--space-5);">
+          <a href="#dynamic-gallery-grid" class="btn btn-primary" style="min-width: 220px;">Browse Archive (120+) &darr;</a>
+          <a href="services.html" class="btn btn-ghost" style="min-width: 200px; background: rgba(255,255,255,0.92); color: #0C0C10;">Commission Custom &rarr;</a>
+        </div>
       </div>
     </section>
 

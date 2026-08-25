@@ -72,7 +72,7 @@
         <li><a href="tribute.html">Tribute</a></li>
         <li>
           <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
+            <span class="theme-icon" aria-hidden="true"></span>
             <span class="theme-label">Dark Mode</span>
           </button>
         </li>
@@ -106,7 +106,7 @@
       </nav>
       <div style="margin: var(--space-4) 0; padding-inline: var(--space-2);">
         <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode" style="width: 100%; justify-content: center; padding: 10px 16px;">
-          <span class="theme-icon">🌙</span>
+          <span class="theme-icon" aria-hidden="true"></span>
           <span class="theme-label">Dark Mode</span>
         </button>
       </div>
@@ -132,14 +132,28 @@
         </video>
         <video class="hero-video-bg is-idle" muted playsinline preload="auto"></video>
       </div>
-      <div class="hero-video-overlay"></div>
-      <div class="container hero-content">
-      <p class="eyebrow" style="justify-content:center;">Legal</p>
-      <h1>Privacy Policy</h1>
+      <div class="container hero-content page-hero-command">
+        <div class="page-hero-badge">
+          <span class="badge-dot"></span>
+          <span>Confidentiality &middot; Client Discretion</span>
         </div>
+        <h1 class="page-hero-title">Privacy &amp; Discretion Policy</h1>
+        <p class="page-hero-statement">How your transaction information and communication requests are handled with absolute confidentiality and strict discretion.</p>
+        
+        <div class="page-protocol-bar">
+          <div class="protocol-chip"><span>01</span> Encrypted Data Protection</div>
+          <div class="protocol-chip"><span>02</span> Zero Third-Party Sharing</div>
+          <div class="protocol-chip"><span>03</span> Discreet Inquiries</div>
+        </div>
+
+        <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; margin-top: var(--space-5);">
+          <a href="#privacy-body" class="btn btn-primary" style="min-width: 200px;">Read Policy &darr;</a>
+          <a href="terms.html" class="btn btn-ghost" style="min-width: 180px; background: rgba(255,255,255,0.92); color: #0C0C10;">Platform Terms &rarr;</a>
+        </div>
+      </div>
     </section>
 
-    <section class="container prose">
+    <section class="container prose" id="privacy-body">
 
       <h2>Who we are</h2>
       <p>This site is operated by Demon Kitty ("we", "us"). Contact directly via <a href="https://x.com/DemonKittySlut" target="_blank" rel="noopener" style="color:var(--accent);">X (Twitter)</a> or <a href="https://www.sextpanther.com/goddessvietkitty" target="_blank" rel="noopener" style="color:var(--accent);">SextPanther</a>.</p>

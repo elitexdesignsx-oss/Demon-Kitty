@@ -97,10 +97,13 @@
 
     const updateButtons = (theme) => {
       const isDark = theme === 'dark';
+      const moonSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      const sunSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+
       getEls('[data-theme-toggle]').forEach(btn => {
         const icon = btn.querySelector('.theme-icon');
         const label = btn.querySelector('.theme-label');
-        if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+        if (icon) icon.innerHTML = isDark ? sunSvg : moonSvg;
         if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
         btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
       });
@@ -479,20 +482,14 @@
     const containers = getEls('.hero-video-container');
     if (containers.length === 0) return;
 
-    // Complete pool of 13 optimized videos
+    // Verified complete pool of 12 distinct, non-duplicate videos
     const videoPool = [
-      'assets/video/hero_home.mp4',
-      'assets/video/hero_rules.mp4',
-      'assets/video/hero_gallery.mp4',
-      'assets/video/hero_tribute.mp4',
-      'assets/video/hero_book.mp4',
       'assets/video/dk_video_1.mp4',
       'assets/video/dk_video_2.mp4',
       'assets/video/dk_video_3.mp4',
       'assets/video/dk_video_4.mp4',
       'assets/video/dk_video_5.mp4',
       'assets/video/dk_video_6.mp4',
-      'assets/video/dk_video_7.mp4',
       'assets/video/dk_video_8.mp4',
       'assets/video/dk_video_9.mp4',
       'assets/video/dk_video_10.mp4',
@@ -501,11 +498,15 @@
       'assets/video/dk_video_13.mp4'
     ];
 
-    function shuffle(array) {
+    function shuffle(array, lastPlayed) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      if (lastPlayed && arr.length > 1 && arr[0] === lastPlayed) {
+        const swapIdx = Math.floor(Math.random() * (arr.length - 1)) + 1;
+        [arr[0], arr[swapIdx]] = [arr[swapIdx], arr[0]];
       }
       return arr;
     }
@@ -535,25 +536,38 @@
 
       let playlist = shuffle(videoPool);
       let currentIndex = 0;
+      let isTransitioning = false;
+      let fallbackTimer = null;
 
-      // Start with the first random video
+      // Start initial video immediately
       activeVideo.src = playlist[currentIndex];
       activeVideo.load();
       activeVideo.play().catch(() => {});
 
-      function playNextRandomClip() {
+      // Preload next clip in idle buffer
+      const nextIndex = (currentIndex + 1) % playlist.length;
+      idleVideo.src = playlist[nextIndex];
+      idleVideo.load();
+
+      function transitionToNextClip() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+
         currentIndex++;
         if (currentIndex >= playlist.length) {
-          playlist = shuffle(videoPool);
+          playlist = shuffle(videoPool, playlist[playlist.length - 1]);
           currentIndex = 0;
         }
 
-        idleVideo.src = playlist[currentIndex];
-        idleVideo.muted = true;
-        idleVideo.load();
+        const targetSrc = playlist[currentIndex];
+        if (idleVideo.src.indexOf(targetSrc) === -1) {
+          idleVideo.src = targetSrc;
+          idleVideo.load();
+        }
 
-        const onCanPlay = () => {
-          idleVideo.removeEventListener('canplay', onCanPlay);
+        const performCrossfade = () => {
+          idleVideo.removeEventListener('canplay', performCrossfade);
           idleVideo.play().then(() => {
             idleVideo.classList.remove('is-idle');
             idleVideo.classList.add('is-active');
@@ -565,18 +579,47 @@
               const temp = activeVideo;
               activeVideo = idleVideo;
               idleVideo = temp;
-              activeVideo.onended = playNextRandomClip;
+              isTransitioning = false;
+
+              // Preload upcoming clip into idle buffer
+              const upcomingIndex = (currentIndex + 1) % playlist.length;
+              idleVideo.src = playlist[upcomingIndex];
+              idleVideo.load();
+
+              attachVideoListeners(activeVideo);
             }, 850);
           }).catch(() => {
-            idleVideo.muted = true;
-            idleVideo.play().catch(() => {});
+            isTransitioning = false;
+            setTimeout(transitionToNextClip, 1000);
           });
         };
 
-        idleVideo.addEventListener('canplay', onCanPlay, { once: true });
+        if (idleVideo.readyState >= 3) {
+          performCrossfade();
+        } else {
+          idleVideo.addEventListener('canplay', performCrossfade, { once: true });
+        }
       }
 
-      activeVideo.onended = playNextRandomClip;
+      function attachVideoListeners(video) {
+        video.onended = transitionToNextClip;
+        video.onerror = transitionToNextClip;
+
+        video.ontimeupdate = () => {
+          if (video.duration && video.currentTime > 0) {
+            if (video.currentTime >= video.duration - 0.75) {
+              video.ontimeupdate = null;
+              transitionToNextClip();
+            }
+          }
+        };
+
+        fallbackTimer = setTimeout(() => {
+          transitionToNextClip();
+        }, 10000);
+      }
+
+      attachVideoListeners(activeVideo);
     });
 
     // Pause on hidden tab to save CPU/battery

@@ -72,7 +72,7 @@
         <li><a href="tribute.html">Tribute</a></li>
         <li>
           <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
+            <span class="theme-icon" aria-hidden="true"></span>
             <span class="theme-label">Dark Mode</span>
           </button>
         </li>
@@ -106,7 +106,7 @@
       </nav>
       <div style="margin: var(--space-4) 0; padding-inline: var(--space-2);">
         <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode" style="width: 100%; justify-content: center; padding: 10px 16px;">
-          <span class="theme-icon">🌙</span>
+          <span class="theme-icon" aria-hidden="true"></span>
           <span class="theme-label">Dark Mode</span>
         </button>
       </div>
@@ -132,13 +132,27 @@
         </video>
         <video class="hero-video-bg is-idle" muted playsinline preload="auto"></video>
       </div>
-      <div class="hero-video-overlay"></div>
-      <div class="container hero-content">
-      <p class="eyebrow" style="justify-content:center;">Legal</p>
-      <h1>Cookie Policy</h1>
+      <div class="container hero-content page-hero-command">
+        <div class="page-hero-badge">
+          <span class="badge-dot"></span>
+          <span>Technical Storage &middot; Essential Engine</span>
         </div>
+        <h1 class="page-hero-title">Cookie &amp; Storage Policy</h1>
+        <p class="page-hero-statement">We use local storage and essential session tokens solely for theme persistence and age verification compliance.</p>
+        
+        <div class="page-protocol-bar">
+          <div class="protocol-chip"><span>01</span> Zero Ad Trackers</div>
+          <div class="protocol-chip"><span>02</span> Theme Preference Storage</div>
+          <div class="protocol-chip"><span>03</span> Age Gate Token</div>
+        </div>
+
+        <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; margin-top: var(--space-5);">
+          <a href="#cookies-body" class="btn btn-primary" style="min-width: 200px;">Read Policy &darr;</a>
+          <a href="index.html" class="btn btn-ghost" style="min-width: 180px; background: rgba(255,255,255,0.92); color: #0C0C10;">Return Home &rarr;</a>
+        </div>
+      </div>
     </section>
-    <section class="container prose">
+    <section class="container prose" id="cookies-body">
 
       <div class="card" style="margin-bottom:var(--space-6); border-color: var(--bordeaux-light, var(--surface-border));">
         <p style="font-size:0.85rem; color:var(--text-secondary); margin:0;"><strong>This is a starting template, not legal advice.</strong> Review it with a qualified lawyer in the jurisdiction where the business is legally established before publishing — the right requirements depend on facts (where she's established, how explicit any on-site content is) that only a lawyer can settle. See the project README for the open questions this affects.</p>

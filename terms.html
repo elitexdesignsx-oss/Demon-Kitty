@@ -72,7 +72,7 @@
         <li><a href="tribute.html">Tribute</a></li>
         <li>
           <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
+            <span class="theme-icon" aria-hidden="true"></span>
             <span class="theme-label">Dark Mode</span>
           </button>
         </li>
@@ -106,7 +106,7 @@
       </nav>
       <div style="margin: var(--space-4) 0; padding-inline: var(--space-2);">
         <button class="theme-switch-btn" data-theme-toggle type="button" aria-label="Toggle dark mode" style="width: 100%; justify-content: center; padding: 10px 16px;">
-          <span class="theme-icon">🌙</span>
+          <span class="theme-icon" aria-hidden="true"></span>
           <span class="theme-label">Dark Mode</span>
         </button>
       </div>
@@ -132,13 +132,27 @@
         </video>
         <video class="hero-video-bg is-idle" muted playsinline preload="auto"></video>
       </div>
-      <div class="hero-video-overlay"></div>
-      <div class="container hero-content">
-      <p class="eyebrow" style="justify-content:center;">Legal</p>
-      <h1>Terms of Service</h1>
+      <div class="container hero-content page-hero-command">
+        <div class="page-hero-badge">
+          <span class="badge-dot"></span>
+          <span>Binding Agreement &middot; Platform Terms</span>
         </div>
+        <h1 class="page-hero-title">Terms of Service</h1>
+        <p class="page-hero-statement">By accessing this domain and engaging with my services, you enter into a legally binding agreement under these terms and protocol.</p>
+        
+        <div class="page-protocol-bar">
+          <div class="protocol-chip"><span>01</span> Adults Only (18+)</div>
+          <div class="protocol-chip"><span>02</span> Watermarked IP Protection</div>
+          <div class="protocol-chip"><span>03</span> Zero Refund Policy</div>
+        </div>
+
+        <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; margin-top: var(--space-5);">
+          <a href="#terms-body" class="btn btn-primary" style="min-width: 200px;">Review Terms &darr;</a>
+          <a href="rules.html" class="btn btn-ghost" style="min-width: 180px; background: rgba(255,255,255,0.92); color: #0C0C10;">The Rules &rarr;</a>
+        </div>
+      </div>
     </section>
-    <section class="container prose">
+    <section class="container prose" id="terms-body">
 
       <div class="card" style="margin-bottom:var(--space-6); border-color: var(--bordeaux-light, var(--surface-border));">
         <p style="font-size:0.85rem; color:var(--text-secondary); margin:0;"><strong>This is a starting template, not legal advice.</strong> Review it with a qualified lawyer in the jurisdiction where the business is legally established before publishing — the right requirements depend on facts (where she's established, how explicit any on-site content is) that only a lawyer can settle. See the project README for the open questions this affects.</p>

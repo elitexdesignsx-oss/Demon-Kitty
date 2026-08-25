@@ -81,3 +81,15 @@ for a real designer's pass, but built with intent rather than as a generic fille
 
 No real or AI-generated photography was created for this build — every gallery/image slot is an
 intentional placeholder (a labeled gradient tile) waiting on real content.
+
+## Code-health validation
+
+Run the dependency-free validator before publishing:
+
+```bash
+node scripts/validate-site.mjs
+```
+
+It checks local page and asset references, gallery data, HTML language and heading basics,
+sitemap targets, and animation invariants. Missing legacy hero-video files are reported as
+runtime-fallback warnings; the existing animated video engine remains enabled.
