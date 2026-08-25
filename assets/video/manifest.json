@@ -1,17 +1,11 @@
 {
   "version": 1,
+  "minDurationSeconds": 7,
   "videos": [
-    "assets/video/dk_video_1.mp4",
-    "assets/video/dk_video_2.mp4",
-    "assets/video/dk_video_3.mp4",
-    "assets/video/dk_video_4.mp4",
-    "assets/video/dk_video_5.mp4",
-    "assets/video/dk_video_6.mp4",
-    "assets/video/dk_video_8.mp4",
-    "assets/video/dk_video_9.mp4",
-    "assets/video/dk_video_10.mp4",
-    "assets/video/dk_video_11.mp4",
-    "assets/video/dk_video_12.mp4",
-    "assets/video/dk_video_13.mp4"
+    { "src": "assets/video/dk_video_2.mp4", "durationSeconds": 14.84 },
+    { "src": "assets/video/dk_video_4.mp4", "durationSeconds": 13.21 },
+    { "src": "assets/video/dk_video_6.mp4", "durationSeconds": 14.40 },
+    { "src": "assets/video/dk_video_9.mp4", "durationSeconds": 7.08 },
+    { "src": "assets/video/dk_video_13.mp4", "durationSeconds": 22.15 }
   ]
 }

@@ -518,8 +518,12 @@
       const manifestUrl = new URL('assets/video/manifest.json', document.baseURI);
       const response = await fetch(manifestUrl, { credentials: 'same-origin', cache: 'force-cache' });
       const manifest = await response.json();
+      const minimumDuration = Number(manifest?.minDurationSeconds) || 7;
       videoPool = Array.isArray(manifest?.videos)
-        ? manifest.videos.filter(src => typeof src === 'string' && /\.mp4$/i.test(src))
+        ? manifest.videos
+          .filter(video => video && typeof video.src === 'string' && /\.mp4$/i.test(video.src))
+          .filter(video => Number(video.durationSeconds) >= minimumDuration)
+          .map(video => video.src)
         : [];
     } catch (error) {
       return;

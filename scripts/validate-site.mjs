@@ -27,6 +27,9 @@ for (const file of htmlFiles) {
   if (!/<html\b[^>]*\blang=["'][^"']+["']/i.test(html)) {
     failures.push(`${file} -> missing html lang attribute`);
   }
+  if (!/theme-switch-btn--mobile/.test(html)) {
+    failures.push(`${file} -> missing mobile theme toggle`);
+  }
   if (!/<h1\b/i.test(html)) warnings.push(`${file} -> no h1 found`);
 }
 
@@ -57,19 +60,26 @@ if (!existsSync(videoManifestPath)) {
 } else {
   try {
     const videoManifest = JSON.parse(readFileSync(videoManifestPath, 'utf8'));
+    const minimumDuration = Number(videoManifest?.minDurationSeconds);
+    if (!Number.isFinite(minimumDuration) || minimumDuration < 7) {
+      failures.push('assets/video/manifest.json -> minimum duration must be at least 7 seconds');
+    }
     if (!Array.isArray(videoManifest?.videos) || videoManifest.videos.length < 2) {
       failures.push('assets/video/manifest.json -> expected at least two videos');
     } else {
       const seenVideos = new Set();
       for (const video of videoManifest.videos) {
-        if (typeof video !== 'string' || !/^assets\/video\/[^/]+\.mp4$/i.test(video)) {
-          failures.push(`assets/video/manifest.json -> invalid playable path ${video}`);
+        if (!video || typeof video.src !== 'string' || !/^assets\/video\/[^/]+\.mp4$/i.test(video.src)) {
+          failures.push(`assets/video/manifest.json -> invalid playable path ${video?.src ?? video}`);
           continue;
         }
-        if (seenVideos.has(video)) failures.push(`assets/video/manifest.json -> duplicate ${video}`);
-        seenVideos.add(video);
-        if (!existsSync(join(root, video.replaceAll('/', '\\')))) {
-          failures.push(`assets/video/manifest.json -> missing ${video}`);
+        if (!Number.isFinite(Number(video.durationSeconds)) || Number(video.durationSeconds) < minimumDuration) {
+          failures.push(`assets/video/manifest.json -> ${video.src} is shorter than ${minimumDuration} seconds`);
+        }
+        if (seenVideos.has(video.src)) failures.push(`assets/video/manifest.json -> duplicate ${video.src}`);
+        seenVideos.add(video.src);
+        if (!existsSync(join(root, video.src.replaceAll('/', '\\')))) {
+          failures.push(`assets/video/manifest.json -> missing ${video.src}`);
         }
       }
     }

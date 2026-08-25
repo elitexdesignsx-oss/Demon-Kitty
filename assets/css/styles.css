@@ -768,6 +768,34 @@ html.age-verified #age-gate {
 }
 .menu-btn span { display: block; width: 18px; height: 1.5px; background: var(--text-primary); transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease); }
 
+/* The drawer keeps the full labelled control; the header gets a compact
+   icon-only version so theme switching is discoverable on phones. */
+.theme-switch-btn.theme-switch-btn--mobile { display: none; }
+
+@media (max-width: 1023px) {
+  .site-header__logo { min-width: 0; flex: 1 1 auto; }
+  .theme-switch-btn.theme-switch-btn--mobile {
+    display: inline-flex;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .theme-switch-btn--mobile .theme-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
 @media (min-width: 1024px) {
   .desktop-nav { display: block; }
   .menu-btn { display: none; }
@@ -2415,6 +2443,26 @@ img, video, a {
   transform: translate3d(0, -22px, 0) scale(1.03);
   filter: blur(10px);
   z-index: 1;
+}
+
+/* Long hero labels must wrap on narrow screens instead of being clipped by
+   the fixed single-line desktop treatment. */
+@media (max-width: 767px) {
+  .text-rotator-wrapper {
+    min-height: 7rem;
+    margin-bottom: var(--space-5);
+    overflow: visible;
+  }
+  .text-rotator {
+    height: 7rem;
+  }
+  .rotator-item {
+    inset: 0 var(--space-2);
+    white-space: normal;
+    line-height: 1.12;
+    font-size: clamp(1.35rem, 7vw, 2rem);
+    text-wrap: balance;
+  }
 }
 
 /* ==========================================================================
