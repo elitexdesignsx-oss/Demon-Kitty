@@ -12,6 +12,7 @@
   const getEl = (sel, ctx = document) => ctx.querySelector(sel);
   const getEls = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
   const on = (el, type, handler) => el && el.addEventListener(type, handler);
+  const getFocusable = (root) => getEls('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])', root);
 
   // --------------------------------------------------------------------------
   // 1. AGE GATE
@@ -23,6 +24,28 @@
     const TTL_DAYS = 30;
     const enterBtn = getEl('[data-age-enter]', gate);
     const exitBtn = getEl('[data-age-exit]', gate);
+    const previousFocus = document.activeElement;
+
+    const keepFocusInside = (event) => {
+      if (event.key !== 'Tab') return;
+      const focusable = getFocusable(gate);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    const closeGate = () => {
+      gate.hidden = true;
+      gate.removeEventListener('keydown', keepFocusInside);
+      if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+    };
 
     const isVerified = () => {
       try {
@@ -43,6 +66,11 @@
       return;
     }
 
+    gate.addEventListener('keydown', keepFocusInside);
+    requestAnimationFrame(() => {
+      if (enterBtn) enterBtn.focus();
+    });
+
     on(enterBtn, 'click', () => {
       const expiry = Date.now() + (TTL_DAYS * 24 * 60 * 60 * 1000);
       try {
@@ -50,7 +78,7 @@
       } catch (e) {}
       document.cookie = `vq_age_verified=1; max-age=${TTL_DAYS * 86400}; path=/; SameSite=Lax`;
       document.documentElement.classList.add('age-verified');
-      gate.hidden = true;
+      closeGate();
     });
 
     on(exitBtn, 'click', () => {
@@ -108,13 +136,32 @@
     const openBtn = getEl('[data-nav-open]');
     const closeBtn = getEl('[data-nav-close]');
     if (!drawer || !openBtn || !closeBtn) return;
+    let previousFocus = null;
+
+    const keepFocusInside = (event) => {
+      if (event.key !== 'Tab' || !drawer.classList.contains('is-open')) return;
+      const focusable = getFocusable(drawer);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
 
     const openDrawer = (e) => {
       if (e) e.preventDefault();
       if (!drawer || !openBtn) return;
+      previousFocus = document.activeElement;
       drawer.classList.add('is-open');
       openBtn.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden'; // Prevent scrolling
+      document.addEventListener('keydown', keepFocusInside);
+      requestAnimationFrame(() => closeBtn.focus());
     };
 
     const closeDrawer = (e) => {
@@ -128,10 +175,15 @@
       drawer.classList.remove('is-open');
       openBtn.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
+      document.removeEventListener('keydown', keepFocusInside);
+      if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
     };
 
     on(openBtn, 'click', openDrawer);
     on(closeBtn, 'click', closeDrawer);
+    on(document, 'keydown', (e) => {
+      if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer();
+    });
     
     // Close on backdrop click
     on(drawer, 'click', (e) => {
@@ -193,10 +245,11 @@
   // --------------------------------------------------------------------------
   const initCarousel = () => {
     const track = getEl('.review-track');
-    const dots = getEls('.review-dots span');
+    const dots = getEls('.review-dots button, .review-dots span');
     if (!track || dots.length === 0) return;
 
-    let isAutoScrolling = true;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let isAutoScrolling = !reduceMotion;
     let autoScrollInterval;
 
     const updateDots = () => {
@@ -208,10 +261,12 @@
 
       dots.forEach((dot, idx) => {
         dot.classList.toggle('is-active', idx === activeIndex);
+        dot.setAttribute('aria-current', idx === activeIndex ? 'true' : 'false');
       });
     };
 
     const startAutoScroll = () => {
+      if (reduceMotion) return;
       if (autoScrollInterval) clearInterval(autoScrollInterval);
       autoScrollInterval = setInterval(() => {
         if (!isAutoScrolling || document.hidden) return;
@@ -220,9 +275,9 @@
         const maxScroll = track.scrollWidth - track.clientWidth;
         
         if (track.scrollLeft >= maxScroll - 10) {
-          track.scrollTo({ left: 0, behavior: 'smooth' });
+          track.scrollTo({ left: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
         } else {
-          track.scrollBy({ left: cardWidth, behavior: 'smooth' });
+          track.scrollBy({ left: cardWidth, behavior: reduceMotion ? 'auto' : 'smooth' });
         }
       }, 5000);
     };
@@ -244,7 +299,7 @@
       on(dot, 'click', () => {
         isAutoScrolling = false;
         const cardWidth = track.scrollWidth / dots.length;
-        track.scrollTo({ left: cardWidth * idx, behavior: 'smooth' });
+        track.scrollTo({ left: cardWidth * idx, behavior: reduceMotion ? 'auto' : 'smooth' });
         setTimeout(() => { isAutoScrolling = true; }, 10000);
       });
     });
@@ -622,6 +677,10 @@
   // 12. GLOBAL LAZY LOADING (Images & Videos)
   // --------------------------------------------------------------------------
   const initLazyMedia = () => {
+    getEls('img:not([loading])').forEach((img) => {
+      if (!img.closest('#age-gate, .site-header, .nav-drawer')) img.loading = 'lazy';
+      img.decoding = 'async';
+    });
     if (!('IntersectionObserver' in window)) return;
 
     const lazyObserver = new IntersectionObserver((entries, observer) => {

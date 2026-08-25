@@ -15,7 +15,19 @@ button { background: none; border: none; cursor: pointer; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .btn, .theme-switch-btn, .gallery-tabs button, .footer-links li a,
+  .footer-social-pill, .review-dots button, .review-dots span {
+    transition-property: color, background-color, border-color, box-shadow, opacity !important;
+    transition-duration: 160ms !important;
+  }
+  .btn:hover, .theme-switch-btn:hover, .card:hover, .gallery-item:hover,
+  .platform-card:hover, .service-card:hover, .rule-card:hover, .tribute-card:hover {
+    transform: none !important;
+  }
 }
 
 /* ---- Design tokens (shared brand palette) ------------------------------ */
@@ -832,7 +844,7 @@ html.age-verified #age-gate {
   font-size: 0.78rem;
   color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), background-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -1025,8 +1037,8 @@ html.age-verified #age-gate {
 .review-card .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--bordeaux)); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
 .badge-verified { display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; letter-spacing: 0.04em; color: var(--accent); text-transform: uppercase; margin-left: auto; }
 .review-dots { display: flex; justify-content: center; gap: var(--space-2); }
-.review-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--surface-border); cursor: pointer; transition: all var(--dur-fast) var(--ease); }
-.review-dots span.is-active { background: var(--accent); width: 18px; border-radius: var(--radius-pill); }
+.review-dots span, .review-dots button { width: 6px; height: 6px; border-radius: 50%; background: var(--surface-border); cursor: pointer; transition: width var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
+.review-dots span.is-active, .review-dots button.is-active { background: var(--accent); width: 18px; border-radius: var(--radius-pill); }
 
 /* Review CTA card at end of carousel */
 .review-card--cta {
@@ -1046,7 +1058,7 @@ html.age-verified #age-gate {
 .gallery-tabs button {
   flex-shrink: 0; padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill);
   border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-secondary); font-size: 0.82rem; font-weight: 600;
-  transition: all var(--dur-fast) var(--ease);
+  transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
 .gallery-tabs button:hover { border-color: var(--accent); color: var(--accent); }
 .gallery-tabs button.is-active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
@@ -1291,7 +1303,7 @@ html.age-verified #age-gate {
   font-weight: 500;
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(200, 185, 170, 0.3);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .footer-links li a .link-arrow {
@@ -1299,7 +1311,7 @@ html.age-verified #age-gate {
   transform: translateX(-4px);
   color: var(--bordeaux);
   font-weight: bold;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .footer-links li a:hover {
@@ -1334,7 +1346,7 @@ html.age-verified #age-gate {
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 2px 6px rgba(160, 135, 115, 0.06);
   text-decoration: none;
   white-space: nowrap;
@@ -1725,8 +1737,9 @@ html.age-verified #age-gate {
   color: #ffffff;
 }
 
-/* ---- RULES HERO COMMAND STYLING ---- */
-.rules-hero-content {
+/* ---- UNIVERSAL COMMAND HERO STYLING ---- */
+.rules-hero-content,
+.page-hero-command {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1735,7 +1748,8 @@ html.age-verified #age-gate {
   margin-inline: auto;
 }
 
-.rules-hero-badge {
+.rules-hero-badge,
+.page-hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1755,7 +1769,8 @@ html.age-verified #age-gate {
   margin-bottom: var(--space-4);
 }
 
-.rules-hero-badge .badge-dot {
+.rules-hero-badge .badge-dot,
+.page-hero-badge .badge-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -1769,7 +1784,8 @@ html.age-verified #age-gate {
   50% { transform: scale(1.4); opacity: 0.6; }
 }
 
-.rules-hero-title {
+.rules-hero-title,
+.page-hero-title {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5vw, 4rem);
   font-weight: 500;
@@ -1780,7 +1796,8 @@ html.age-verified #age-gate {
   margin-bottom: var(--space-3);
 }
 
-.rules-hero-statement {
+.rules-hero-statement,
+.page-hero-statement {
   font-size: clamp(1.05rem, 1.8vw, 1.25rem);
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.92);
@@ -1790,7 +1807,8 @@ html.age-verified #age-gate {
   margin-bottom: var(--space-4);
 }
 
-.rules-protocol-bar {
+.rules-protocol-bar,
+.page-protocol-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -1811,7 +1829,7 @@ html.age-verified #age-gate {
   color: #FFFFFF;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .protocol-chip span {
@@ -2445,7 +2463,7 @@ img, video, a {
   box-shadow: 0 6px 20px rgba(160, 135, 115, 0.12);
   position: relative;
   overflow: hidden;
-  transition: all 0.4s var(--ease);
+  transition: color 0.4s var(--ease), background-color 0.4s var(--ease), border-color 0.4s var(--ease), box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
 }
 
 .btn-elite:hover {
@@ -2613,4 +2631,3 @@ img, video, a {
 .gallery-card {
   background: linear-gradient(135deg, #FDFBF7 0%, #EFE9DF 100%) !important;
 }
-
