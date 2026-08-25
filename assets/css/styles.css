@@ -276,6 +276,36 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   box-shadow: 0 0 18px rgba(255, 46, 147, 0.3);
 }
 
+[data-theme="dark"] .site-footer__brand-card {
+  background: #12121A;
+  border-color: rgba(255, 46, 147, 0.24);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.72), 0 0 22px rgba(255, 46, 147, 0.08);
+}
+
+[data-theme="dark"] .footer-links li a {
+  background: #12121A;
+  border-color: rgba(255, 46, 147, 0.2);
+  color: #FFD6EA;
+}
+
+[data-theme="dark"] .footer-links li a:hover {
+  background: rgba(255, 46, 147, 0.13);
+  border-color: rgba(255, 46, 147, 0.72);
+  color: #FFFFFF;
+  box-shadow: 0 4px 18px rgba(255, 46, 147, 0.18);
+}
+
+[data-theme="dark"] .footer-brand__badge {
+  background: rgba(255, 46, 147, 0.14);
+  border-color: rgba(255, 179, 217, 0.62);
+  color: #FFD6EA;
+  box-shadow: 0 4px 16px rgba(255, 46, 147, 0.24);
+}
+
+[data-theme="dark"] .site-footer__bottom {
+  border-top-color: rgba(255, 46, 147, 0.24);
+}
+
 [data-theme="dark"] .gallery-card {
   background: #13131D;
   border: 1px solid rgba(255, 46, 147, 0.22);
@@ -1804,6 +1834,10 @@ html.age-verified #age-gate {
     line-height: 1.16;
     letter-spacing: -0.02em;
     text-wrap: balance;
+    text-align: center;
+  }
+  .about-thought > span {
+    display: block;
   }
   .about-pillars {
     gap: 10px;
